@@ -1,5 +1,7 @@
 # `weapon-config.inc`
 
+## This is the [open.mp](https://github.com/openmultiplayer/open.mp) version, click [here](https://github.com/oscar-broman/samp-weapon-config) for SA-MP version.
+
 This is an include that provides a more consistent and responsive damage system with many new features.
 
 It's pretty much plug-and-play if you don't have any filterscripts that interfere with the health or death events.
@@ -24,9 +26,7 @@ It's pretty much plug-and-play if you don't have any filterscripts that interfer
 
 ## Requirements
 
-This include file requires the [SKY](https://github.com/oscar-broman/SKY/) or [Pawn.RakNet](https://github.com/katursis/Pawn.RakNet/) plugin.
-
-**Note:** SKY has a higher priority if the user has not included any of these dependencies before weapon-config (it will automatically try to include SKY and only then Pawn.RakNet, if fail with the first). Also, SKY will take precedence if both dependencies are included (it will use the SKY plugin instead of Pawn.RakNet).
+This include file requires the [Pawn.RakNet](https://github.com/katursis/Pawn.RakNet/) plugin.
 
 # Features
 
@@ -73,13 +73,13 @@ This include file requires the [SKY](https://github.com/oscar-broman/SKY/) or [P
 
 All players are given infinite health and set to the same team. Damage is counted by the script whenever `OnPlayer(Give/Take)Damage` is called. The real `GetPlayerHealth` is **never** read by the include file.
 
-The players healthbars are modified by editing SA-MP packets, so they are very responsive.
+The players healthbars are modified by editing open.mp packets, so they are very responsive.
 
-The death animations are applied as "forcesync" and even the facing angle is force synced (with SKY or Pawn.RakNet). This allows perfect animations even for laggy/paused players.
+The death animations are applied as "forcesync" and even the facing angle is force synced (with Pawn.RakNet). This allows perfect animations even for laggy/paused players.
 
-The *real* `OnPlayerDeath` is never called from the SA-MP server (only in some rare cases). A player never actually dies in their game - they just see a death animation applied and get respawned.
+The *real* `OnPlayerDeath` is never called from the open.mp server (only in some rare cases). A player never actually dies in their game - they just see a death animation applied and get respawned.
 
-Many SA-MP functions are hooked to provide new values (such as `GetPlayerState`, `(Get/Set)Player(Health/Armour)`, `GetPlayerTeam`).
+Many open.mp functions are hooked to provide new values (such as `GetPlayerState`, `(Get/Set)Player(Health/Armour)`, `GetPlayerTeam`).
 
 ## Caveats
 
@@ -198,7 +198,7 @@ AverageHitRate(playerid, hits, &multiple_weapons = 0);
 Same as above, but for hits inflicted with `OnPlayerGiveDamage`
 
 ```pawn
-DamagePlayer(playerid, Float:amount, issuerid = INVALID_PLAYER_ID, weaponid = WEAPON_UNKNOWN, bodypart = BODY_PART_UNKNOWN, bool:ignore_armour = false);
+DamagePlayer(playerid, Float:amount, issuerid = INVALID_PLAYER_ID, WEAPON:weaponid = WEAPON_UNKNOWN, bodypart = BODY_PART_UNKNOWN, bool:ignore_armour = false);
 ```
 Inflict a hit on a player. All callbacks except `OnPlayerWeaponShot` will be called.
 * `ignore_armour` - When `true` will do damage straight to health, and not armour.
@@ -229,17 +229,17 @@ GetRespawnTime();
 Get the respawn time
 
 ```pawn
-IsBulletWeapon(weaponid);
+IsBulletWeapon(WEAPON:weaponid);
 ```
 Returns true if the weapon shoots bullets
 
 ```pawn
-IsHighRateWeapon(weaponid);
+IsHighRateWeapon(WEAPON:weaponid);
 ```
 Returns true if the weapon's damage can be reported in high rates to the server (such as fire)
 
 ```pawn
-IsMeleeWeapon(weaponid);
+IsMeleeWeapon(WEAPON:weaponid);
 ```
 Returns true if it's a melee weapon (including `WEAPON_PISTOLWHIP`)
 
@@ -249,7 +249,7 @@ IsPlayerDying(playerid);
 Returns true if the player is between the dying animation and spawning
 
 ```pawn
-WC_IsPlayerSpawned(playerid);
+IsPlayerSpawned(playerid);
 ```
 Returns true if the player is spawned and not in a dying animation
 
@@ -259,14 +259,14 @@ WC_IsPlayerPaused(playerid);
 Returns true if the player is paused (AFK) within last two seconds
 
 ```pawn
-GetWeaponName(weaponid, weapon[], len = sizeof(weapon));
+GetWeaponName(WEAPON:weaponid, weapon[], len = sizeof(weapon));
 ```
-Hooked version of the native, fixed and containing custom weapons (such as pistol whip)
+Hooked version of the native, containing custom weapons (such as pistol whip)
 
 ```pawn
-ReturnWeaponName(weaponid);
+ReturnWeaponName(WEAPON:weaponid);
 ```
-Return the weapon name (uses the fixed GetWeaponName)
+Return the weapon name (uses the hooked GetWeaponName)
 
 ```pawn
 SetCustomFallDamage(bool:toggle, Float:damage_multiplier = 25.0, Float:death_velocity = -0.6);
@@ -309,7 +309,7 @@ SetVehicleUnoccupiedDamage(bool:toggle);
 Allow vehicles to be damaged when they don't have any players inside them
 
 ```pawn
-SetWeaponDamage(weaponid, damage_type, Float:amount, Float:...);
+SetWeaponDamage(WEAPON:weaponid, damage_type, Float:amount, Float:...);
 ```
 Modify a weapon's damage
 * `weaponid` - The weapon to modify
@@ -338,30 +338,30 @@ Modify a weapon's damage
     * `20` for any other distance
 
 ```pawn
-Float:GetWeaponDamage(weaponid);
+Float:GetWeaponDamage(WEAPON:weaponid);
 ```
 Get the amount of damage of a weapon
 
 ```pawn
-SetWeaponMaxRange(weaponid, Float:range);
+SetWeaponMaxRange(WEAPON:weaponid, Float:range);
 ```
 Set the max range of a weapon. The default value is those from weapon.dat
 Because of a SA-MP bug, weapons can (and will) exceed this range.
 This script, however, will block those out-of-range shots and give a rejected hit.
 
 ```pawn
-Float:GetWeaponMaxRange(weaponid);
+Float:GetWeaponMaxRange(WEAPON:weaponid);
 ```
 Get the max range of a weapon
 
 ```pawn
-SetWeaponShootRate(weaponid, max_rate);
+SetWeaponShootRate(WEAPON:weaponid, max_rate);
 ```
 Set the max allowed shoot rate of a weapon.
 Could be used to prevent C-bug damage or allow infinite shooting if a script uses GivePlayerWeapon to do so.
 
 ```pawn
-GetWeaponShootRate(weaponid);
+GetWeaponShootRate(WEAPON:weaponid);
 ```
 Get the max allowed shoot rate of a weapon
 
@@ -373,7 +373,7 @@ Toggle the custom armour rules on and off. Both are disabled by default.
 * `torso_rules` - Toggle all torso-only rules. When off, all weapons will have effects no matter which bodypart is 'hit'. When on, weapons with the `torso_only` rule (of `SetWeaponArmourRule`) on will only damage armour when the torso is 'hit' (and when it's off, armour is damaged no matter which body part is 'hit').
 
 ```pawn
-SetWeaponArmourRule(weaponid, bool:affects_armour, bool:torso_only);
+SetWeaponArmourRule(WEAPON:weaponid, bool:affects_armour, bool:torso_only);
 ```
 Set custom rules for a weapon. The defaults aren't going to comfort EVERYONE, so everyone needs the ability to modify the weapons themselves.
 * `weaponid` - The ID of the weapon to modify the rules of.
