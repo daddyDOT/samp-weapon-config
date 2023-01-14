@@ -1656,7 +1656,7 @@ stock bool:WC_GetWeaponName(WEAPON:weaponid, weapon[], len = sizeof(weapon))
 stock bool:WC_ApplyAnimation(playerid, const animlib[], const animname[], Float:fDelta, bool:loop, bool:lockx, bool:locky, bool:freeze, time, FORCE_SYNC:forcesync = SYNC_NONE)
 {
 	if (playerid < 0 || playerid >= MAX_PLAYERS || s_IsDying[playerid]) {
-		return 0;
+		return false;
 	}
 
 	return ApplyAnimation(playerid, animlib, animname, fDelta, loop, lockx, locky, freeze, time, forcesync);
@@ -1665,7 +1665,7 @@ stock bool:WC_ApplyAnimation(playerid, const animlib[], const animname[], Float:
 stock bool:WC_ClearAnimations(playerid, FORCE_SYNC:forcesync = SYNC_ALL)
 {
 	if (playerid < 0 || playerid >= MAX_PLAYERS || s_IsDying[playerid]) {
-		return 0;
+		return false;
 	}
 
 	s_LastStop[playerid] = GetTickCount();
@@ -1924,7 +1924,7 @@ stock bool:WC_IsPlayerInRaceCheckpoint(playerid)
 stock bool:WC_SetPlayerSpecialAction(playerid, SPECIAL_ACTION:actionid)
 {
 	if (!WC_IsPlayerSpawned(playerid)) {
-		return 0;
+		return false;
 	}
 
 	return SetPlayerSpecialAction(playerid, actionid);
