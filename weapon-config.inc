@@ -2061,7 +2061,7 @@ stock bool:WC_TextDrawSetPreviewRot(Text:text, Float:fRotX, Float:fRotY, Float:f
 	return TextDrawSetPreviewRot(text, fRotX, fRotY, fRotZ, fZoom);
 }
 
-stock bool:WC_TDSetPreviewVehicleColours(Text:text, colour1, colour2)
+stock bool:WC_TextDrawSetPreviewVehCols(Text:text, colour1, colour2)
 {
 	if (_:text < 0 || text >= MAX_TEXT_DRAWS || s_InternalTextDraw[text]) return false;
 	return TextDrawSetPreviewVehicleColours(text, colour1, colour2);
@@ -2142,7 +2142,7 @@ stock bool:WC_PlayerTextDrawSetOutline(playerid, PlayerText:text, size)
 	return PlayerTextDrawSetOutline(playerid, text, size);
 }
 
-stock bool:WC_PlayerTDBackgroundColour(playerid, PlayerText:text, colour)
+stock bool:WC_PlayerTextDrawBgCol(playerid, PlayerText:text, colour)
 {
 	if (playerid < 0 || playerid >= MAX_PLAYERS) return false;
 	if (_:text < 0 || text >= MAX_PLAYER_TEXT_DRAWS || s_InternalPlayerTextDraw[playerid][text]) return false;
@@ -2156,7 +2156,7 @@ stock bool:WC_PlayerTextDrawFont(playerid, PlayerText:text, TEXT_DRAW_FONT:font)
 	return PlayerTextDrawFont(playerid, text, font);
 }
 
-stock bool:WC_PlayerTDSetProportional(playerid, PlayerText:text, bool:set)
+stock bool:WC_PlayerTextDrawSetProp(playerid, PlayerText:text, bool:set)
 {
 	if (playerid < 0 || playerid >= MAX_PLAYERS) return false;
 	if (_:text < 0 || text >= MAX_PLAYER_TEXT_DRAWS || s_InternalPlayerTextDraw[playerid][text]) return false;
@@ -2191,7 +2191,7 @@ stock bool:WC_PlayerTextDrawSetString(playerid, PlayerText:text, const string[])
 	return PlayerTextDrawSetString(playerid, text, string);
 }
 
-stock bool:WC_PlayerTDSetPreviewModel(playerid, PlayerText:text, modelindex)
+stock bool:WC_PlayerTextDrawSetPrevMod(playerid, PlayerText:text, modelindex)
 {
 	if (playerid < 0 || playerid >= MAX_PLAYERS) return false;
 	if (_:text < 0 || text >= MAX_PLAYER_TEXT_DRAWS || s_InternalPlayerTextDraw[playerid][text]) return false;
@@ -2205,11 +2205,11 @@ stock bool:WC_PlayerTextDrawSetPreviewRot(playerid, PlayerText:text, Float:fRotX
 	return PlayerTextDrawSetPreviewRot(playerid, text, fRotX, fRotY, fRotZ, fZoom);
 }
 
-stock bool:WC_PTDSetPreviewVehicleColours(playerid, PlayerText:text, colour1, colour2)
+stock bool:WC_PlayerTextDrawSetPrevVehCol(playerid, PlayerText:text, colour1, colour2)
 {
 	if (playerid < 0 || playerid >= MAX_PLAYERS) return false;
 	if (_:text < 0 || text >= MAX_PLAYER_TEXT_DRAWS || s_InternalPlayerTextDraw[playerid][text]) return false;
-	return PTDSetPreviewVehicleColours(playerid, text, colour1, colour2);
+	return PlayerTextDrawSetPreviewVehicleColours(playerid, text, colour1, colour2);
 }
 
 /*
@@ -3185,6 +3185,10 @@ public OnPlayerGiveDamage(playerid, damagedid, Float:amount, weaponid, bodypart)
 		new npc = IsPlayerNPC(damagedid);
 
 		if (weaponid == _:WEAPON_KNIFE && _:amount == _:0.0) {
+			if (damagedid == playerid) {
+				return 0;
+			}
+
 			if (s_KnifeTimeout[damagedid] != -1) {
 				KillTimer(s_KnifeTimeout[damagedid]);
 			}
@@ -3231,6 +3235,10 @@ public OnPlayerGiveDamage(playerid, damagedid, Float:amount, weaponid, bodypart)
 		if (_:amount == _:0.0) {
 			new WEAPON:w, a;
 			GetPlayerWeaponData(playerid, WEAPON_SLOT_UNARMED, w, a);
+
+			if (damagedid == playerid) {
+				return 0;
+			}
 
 			// Resync without bothering the player being knifed
 			if (npc || HasSameTeam(playerid, damagedid)) {
@@ -3482,6 +3490,10 @@ public OnPlayerTakeDamage(playerid, issuerid, Float:amount, weaponid, bodypart)
 
 		// With the plugin, this part is never actually used (it can't happen)
 		if (_:amount == _:0.0) {
+			if (issuerid == playerid) {
+				return 0;
+			}
+
 			if (s_KnifeTimeout[playerid] != -1) {
 				KillTimer(s_KnifeTimeout[playerid]);
 
@@ -6750,12 +6762,12 @@ CHAIN_FORWARD:WC_OnPlayerDeathFinished(playerid, bool:cancelable) = 1;
 #define TextDrawSetPreviewRot WC_TextDrawSetPreviewRot
 
 
-#if defined _ALS_TDSetPreviewVehicleColours
+#if defined _ALS_TextDrawSetPreviewVehicleColours
 	#undef TextDrawSetPreviewVehicleColours
 #else
-	#define _ALS_TDSetPreviewVehicleColours
+	#define _ALS_TextDrawSetPreviewVehicleColours
 #endif
-#define TextDrawSetPreviewVehicleColours WC_TDSetPreviewVehicleColours
+#define TextDrawSetPreviewVehicleColours WC_TextDrawSetPreviewVehCols
 
 
 #if defined _ALS_CreatePlayerTextDraw
@@ -6843,7 +6855,7 @@ CHAIN_FORWARD:WC_OnPlayerDeathFinished(playerid, bool:cancelable) = 1;
 #else
 	#define _ALS_PlayerTextDrawBackgroundCo
 #endif
-#define PlayerTextDrawBackgroundColour WC_PlayerTDBackgroundColour
+#define PlayerTextDrawBackgroundColour WC_PlayerTextDrawBgCol
 
 
 #if defined _ALS_PlayerTextDrawFont
@@ -6854,12 +6866,12 @@ CHAIN_FORWARD:WC_OnPlayerDeathFinished(playerid, bool:cancelable) = 1;
 #define PlayerTextDrawFont WC_PlayerTextDrawFont
 
 
-#if defined _ALS_PTDSetProportional
+#if defined _ALS_PlayerTextDrawSetProportional
 	#undef PlayerTextDrawSetProportional
 #else
-	#define _ALS_PTDSetProportional
+	#define _ALS_PlayerTextDrawSetProportional
 #endif
-#define PlayerTextDrawSetProportional WC_PlayerTDSetProportional
+#define PlayerTextDrawSetProportional WC_PlayerTextDrawSetProp
 
 
 #if defined _ALS_PlayerTextDrawSetSelectabl
@@ -6899,7 +6911,7 @@ CHAIN_FORWARD:WC_OnPlayerDeathFinished(playerid, bool:cancelable) = 1;
 #else
 	#define _ALS_PlayerTextDrawSetPreviewMo
 #endif
-#define PlayerTextDrawSetPreviewModel WC_PlayerTDSetPreviewModel
+#define PlayerTextDrawSetPreviewModel WC_PlayerTextDrawSetPrevMod
 
 
 #if defined _ALS_PlayerTextDrawSetPreviewRo
@@ -6909,11 +6921,10 @@ CHAIN_FORWARD:WC_OnPlayerDeathFinished(playerid, bool:cancelable) = 1;
 #endif
 #define PlayerTextDrawSetPreviewRot WC_PlayerTextDrawSetPreviewRot
 
-/*
+
 #if defined _ALS_PlayerTextDrawSetPreviewVehicleColours
 	#undef PlayerTextDrawSetPreviewVehicleColours
 #else
 	#define _ALS_PlayerTextDrawSetPreviewVehicleColours
 #endif
-#define PlayerTextDrawSetPreviewVehicleColours WC_PTDSetPreviewVehicleColours
-*/
+#define PlayerTextDrawSetPreviewVehicleColours WC_PlayerTextDrawSetPrevVehCol
